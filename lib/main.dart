@@ -25,15 +25,32 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  int _selectedIndex = 0;
+  static const List<Widget> _navigationItems = <Widget>[
+    Center(
+      child: Text("Notifications"),
+    ),
+    Center(
+      child: Text("Calendar"),
+    ),
+    Center(
+      child: Text("Card"),
+    ),
+    Center(
+      child: Text("Settings"),
+    ),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[Text("Hello world!")],
-        ),
-      ),
+      body: Center(child: _navigationItems[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -53,6 +70,10 @@ class _MainPageState extends State<MainPage> {
             label: "Settings",
           ),
         ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
       ),
     );
   }
