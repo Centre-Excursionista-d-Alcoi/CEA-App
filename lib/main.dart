@@ -31,7 +31,7 @@ class _MainPageState extends State<MainPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[],
+          children: <Widget>[Text("Hello world!")],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
