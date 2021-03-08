@@ -7,11 +7,11 @@ void main() async {
 
   runApp(
     EasyLocalization(
-        supportedLocales: [Locale('ca', 'ES')],
-        path: 'assets/translations',
-        // <-- change the path of the translation files
-        fallbackLocale: Locale('ca', 'ES'),
-        child: MyApp()),
+      supportedLocales: [Locale('ca', 'ES')],
+      path: 'assets/translations',
+      fallbackLocale: Locale('ca', 'ES'),
+      child: MyApp(),
+    ),
   );
 }
 
@@ -172,7 +172,8 @@ class _MainPageState extends State<MainPage> {
                       fontSize: 24,
                     ),
                   ),
-                  Text('info_version').tr(),
+                  // TODO: Show app version
+                  Text('info_version').tr(args: ['TODO']),
                 ],
               ),
             ),
