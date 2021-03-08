@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
+  runApp(
+    EasyLocalization(
+        supportedLocales: [Locale('en', 'US')],
+        path: 'assets/translations', // <-- change the path of the translation files
+        fallbackLocale: Locale('en', 'US'),
+        child: MyApp()
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -52,22 +67,22 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: Center(child: _navigationItems[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications_rounded),
-            label: "Notifications",
+            label: tr("item_notifications"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today_rounded),
-            label: "Calendar",
+            label: tr("item_calendar"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded),
-            label: "Card",
+            label: tr("item_card"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_rounded),
-            label: "Settings",
+            label: tr("item_settings"),
           ),
         ],
         currentIndex: _selectedIndex,
