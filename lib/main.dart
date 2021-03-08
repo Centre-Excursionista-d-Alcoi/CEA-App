@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:table_calendar/table_calendar.dart';
+
+final Map<DateTime, List> _holidays = {
+  DateTime(2020, 1, 1): ['New Year\'s Day'],
+  DateTime(2020, 1, 6): ['Epiphany'],
+  DateTime(2020, 2, 14): ['Valentine\'s Day'],
+  DateTime(2020, 4, 21): ['Easter Sunday'],
+  DateTime(2020, 4, 22): ['Easter Monday'],
+};
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,8 +61,12 @@ class NotificationItem {
   bool isExpanded;
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
+  Map<DateTime, List> _events;
+  List _selectedEvents;
+  AnimationController _animationController;
+  CalendarController _calendarController;
 
   List<NotificationItem> _notifications = [
     NotificationItem(
@@ -81,56 +94,108 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final _selectedDay = DateTime.now();
+
+    _events = {
+      _selectedDay.subtract(Duration(days: 30)): [
+        'Event A0',
+        'Event B0',
+        'Event C0'
+      ],
+      _selectedDay.subtract(Duration(days: 27)): ['Event A1'],
+      _selectedDay.subtract(Duration(days: 20)): [
+        'Event A2',
+        'Event B2',
+        'Event C2',
+        'Event D2'
+      ],
+      _selectedDay.subtract(Duration(days: 16)): ['Event A3', 'Event B3'],
+      _selectedDay.subtract(Duration(days: 10)): [
+        'Event A4',
+        'Event B4',
+        'Event C4'
+      ],
+      _selectedDay.subtract(Duration(days: 4)): [
+        'Event A5',
+        'Event B5',
+        'Event C5'
+      ],
+      _selectedDay.subtract(Duration(days: 2)): ['Event A6', 'Event B6'],
+      _selectedDay: ['Event A7', 'Event B7', 'Event C7', 'Event D7'],
+      _selectedDay.add(Duration(days: 1)): [
+        'Event A8',
+        'Event B8',
+        'Event C8',
+        'Event D8'
+      ],
+      _selectedDay.add(Duration(days: 3)):
+          Set.from(['Event A9', 'Event A9', 'Event B9']).toList(),
+      _selectedDay.add(Duration(days: 7)): [
+        'Event A10',
+        'Event B10',
+        'Event C10'
+      ],
+      _selectedDay.add(Duration(days: 11)): ['Event A11', 'Event B11'],
+      _selectedDay.add(Duration(days: 17)): [
+        'Event A12',
+        'Event B12',
+        'Event C12',
+        'Event D12'
+      ],
+      _selectedDay.add(Duration(days: 22)): ['Event A13', 'Event B13'],
+      _selectedDay.add(Duration(days: 26)): [
+        'Event A14',
+        'Event B14',
+        'Event C14'
+      ],
+    };
+
+    _selectedEvents = _events[_selectedDay] ?? [];
+    _calendarController = CalendarController();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _calendarController.dispose();
+    super.dispose();
+  }
+
+  void _onDaySelected(DateTime day, List events, List holidays) {
+    print('CALLBACK: _onDaySelected');
+    setState(() {
+      _selectedEvents = events;
+    });
+  }
+
+  void _onVisibleDaysChanged(
+      DateTime first, DateTime last, CalendarFormat format) {
+    print('CALLBACK: _onVisibleDaysChanged');
+  }
+
+  void _onCalendarCreated(
+      DateTime first, DateTime last, CalendarFormat format) {
+    print('CALLBACK: _onCalendarCreated');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
           child: <Widget>[
-        SingleChildScrollView(
-          child: Container(
-            child: ExpansionPanelList(
-              expansionCallback: (int index, bool isExpanded) {
-                setState(() {
-                  _notifications[index].isExpanded = !isExpanded;
-                });
-              },
-              children:
-                  _notifications.map<ExpansionPanel>((NotificationItem item) {
-                return ExpansionPanel(
-                  headerBuilder: (BuildContext context, bool isExpanded) {
-                    print(item.icon);
-                    return ListTile(
-                      leading: <Icon>[
-                        Icon(Icons.close_rounded),
-                        Icon(Icons.people_rounded),
-                        Icon(Icons.book_rounded),
-                      ][item.icon == null ? 0 : item.icon],
-                      title: Text(item.title),
-                    );
-                  },
-                  body: ListTile(
-                    title: Text(item.message),
-                    trailing: Icon(Icons.delete_rounded),
-                    onTap: () {
-                      setState(() {
-                        _notifications
-                            .removeWhere((currentItem) => item == currentItem);
-                      });
-                    },
-                  ),
-                  isExpanded: item.isExpanded,
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-        Center(
-          child: Text("Calendar"),
-        ),
+        _buildNotifications(),
+        _buildCalendar(),
         Center(
           child: Text("Card"),
-        ),
-        Center(
-          child: Text("Settings"),
         ),
       ][_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
@@ -194,6 +259,72 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildNotifications() {
+    return SingleChildScrollView(
+      child: Container(
+        child: ExpansionPanelList(
+          expansionCallback: (int index, bool isExpanded) {
+            setState(() {
+              _notifications[index].isExpanded = !isExpanded;
+            });
+          },
+          children: _notifications.map<ExpansionPanel>((NotificationItem item) {
+            return ExpansionPanel(
+              headerBuilder: (BuildContext context, bool isExpanded) {
+                print(item.icon);
+                return ListTile(
+                  leading: <Icon>[
+                    Icon(Icons.close_rounded),
+                    Icon(Icons.people_rounded),
+                    Icon(Icons.book_rounded),
+                  ][item.icon == null ? 0 : item.icon],
+                  title: Text(item.title),
+                );
+              },
+              body: ListTile(
+                title: Text(item.message),
+                trailing: Icon(Icons.delete_rounded),
+                onTap: () {
+                  setState(() {
+                    _notifications
+                        .removeWhere((currentItem) => item == currentItem);
+                  });
+                },
+              ),
+              isExpanded: item.isExpanded,
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendar() {
+    return TableCalendar(
+      calendarController: _calendarController,
+      events: _events,
+      holidays: _holidays,
+      startingDayOfWeek: StartingDayOfWeek.monday,
+      calendarStyle: CalendarStyle(
+        selectedColor: Colors.deepOrange[400],
+        todayColor: Colors.deepOrange[200],
+        markersColor: Colors.brown[700],
+        outsideDaysVisible: false,
+      ),
+      headerStyle: HeaderStyle(
+        formatButtonTextStyle:
+        TextStyle().copyWith(color: Colors.white, fontSize: 15.0),
+        formatButtonDecoration: BoxDecoration(
+          color: Colors.deepOrange[400],
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
+      onDaySelected: _onDaySelected,
+      onVisibleDaysChanged: _onVisibleDaysChanged,
+      onCalendarCreated: _onCalendarCreated,
     );
   }
 }
