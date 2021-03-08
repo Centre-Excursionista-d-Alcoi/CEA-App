@@ -1,0 +1,14 @@
+{
+  "item_notifications": "Notificacions",
+  "item_calendar": "Calendari",
+  "item_card": "Targeta",
+
+  "side_item_new_event": "Nou esdeveniment",
+  "side_item_scanner": "Escàner",
+  "side_item_settings": "Configuració",
+
+  "chip_meeting": "Reunió",
+  "chip_material": "Material",
+
+  "info_version": "Version {}"
+}
